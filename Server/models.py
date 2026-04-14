@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
+from datetime import date
 db = SQLAlchemy()
 
 # Define models here
@@ -14,6 +15,27 @@ class Exercise(db.Model):
 
     workout = db.relationship('Workout', secondary="workout_exercises", back_populates="exercises")
 
+    #validate category
+    @validates("category")
+    def validate_category(self, key, value):
+        acceptedCategories = ["strength", "cardio", "flexibility"]
+
+        if value not in acceptedCategories:
+            return f"The category not found. The following are the accepted categories {acceptedCategories}"
+        
+
+    #validate name
+    @validates("name")
+    def validate_category(self, key, name):
+
+        #check if it is not empty
+        if not name:
+            return f"The name cannot be empty"
+        
+        #check the length of the name
+        if not 3 < len(name) < 20:
+            return f"The number of characters should be between 3 and 20"
+
 class Workout(db.Model):
 
     __tablename__="workout"
@@ -24,6 +46,20 @@ class Workout(db.Model):
     notes=db.Column(db.Text)
 
     exercise = db.relationship('Exercise', secondary="workout_exercises", back_populates="workout")
+
+    @validates("date")
+    def validate_date(self, key, value):
+        
+        #check if date is correct
+        if value > date.today():
+            raise("Date cannot be in future")
+
+    @validates("duration_minutes")
+    def validate_duration_minutes(self, key, value):
+        
+        #check if the minutes are negative
+        if value <= 0:
+            raise("The duration must be positive")
 
 class WorkoutExercises(db.Model):
 
