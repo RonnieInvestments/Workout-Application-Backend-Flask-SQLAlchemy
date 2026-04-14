@@ -13,7 +13,7 @@ class Exercise(db.Model):
     category=db.Column(db.String)
     equipment_needed=db.Column(db.Boolean)
 
-    workout = db.relationship('Workout', secondary="workout_exercises", back_populates="exercises")
+    workout_exercises = db.relationship("WorkoutExercises", back_populates="exercise")
 
     #validate category
     @validates("category")
@@ -45,14 +45,20 @@ class Workout(db.Model):
     duration_minutes=db.Column(db.Integer)
     notes=db.Column(db.Text)
 
-    exercise = db.relationship('Exercise', secondary="workout_exercises", back_populates="workout")
+    workout_exercises = db.relationship("WorkoutExercises", back_populates="workout")
 
     @validates("date")
     def validate_date(self, key, value):
         
+        #Convert datetime -> date if needed
+        if hasattr(value, "date"):
+            value=value.date()
+        
         #check if date is correct
         if value > date.today():
-            raise("Date cannot be in future")
+            raise ValueError("Date cannot be in future")
+        
+        return value
 
     @validates("duration_minutes")
     def validate_duration_minutes(self, key, value):
@@ -66,11 +72,13 @@ class WorkoutExercises(db.Model):
     __tablename__="workout_exercises"
 
     id=db.Column(db.Integer, primary_key=True)
-    workout_id=db.Column(db.Integer) # foreign key to Workout
-    exercise_id=db.Column(db.Integer) # foreign key to Exercise
+    
+    workout_id=db.Column(db.Integer, db.ForeignKey("workout.id")) # foreign key to Workout
+    exercise_id=db.Column(db.Integer, db.ForeignKey("exercises.id")) # foreign key to Exercise
+    
     reps=db.Column(db.Integer)
     sets=db.Column(db.Integer)
     duration_seconds=db.Column(db.Integer)
 
-    exercise = db.relationship('Exercise', back_populates= "workout_exercises")
-    workout = db.relationship('Workout', back_populates= "workout_exercises")
+    exercise = db.relationship("Exercise", back_populates= "workout_exercises")
+    workout = db.relationship("Workout", back_populates= "workout_exercises")
