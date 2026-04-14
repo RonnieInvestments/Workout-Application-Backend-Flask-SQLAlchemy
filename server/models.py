@@ -1,5 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
+from marshmallow import Schema, ValidationError, fields, validates_schema
+
+
 from datetime import date
 db = SQLAlchemy()
 
@@ -35,6 +38,16 @@ class Exercise(db.Model):
         #check the length of the name
         if not 3 < len(name) < 20:
             return f"The number of characters should be between 3 and 20"
+        
+#create schema for exercise model
+class ExerciseSchema(Schema):
+
+    id = fields.Int(dump_only=True)
+    name = fields.String()
+    category = fields.String()
+    equipment_needed = fields.Boolean()
+
+    workouts = fields.Nested(lambda:WorkoutSchema(exclude=("exercises",)))
 
 class Workout(db.Model):
 
@@ -66,6 +79,15 @@ class Workout(db.Model):
         #check if the minutes are negative
         if value <= 0:
             raise("The duration must be positive")
+        
+#create schema for the workout model
+class WorkoutSchema(Schema):
+    id = fields.Int(dump_only=True)
+    date = fields.Date()
+    duration_minutes = fields.Integer()
+    notes = fields.String()
+
+    exercises = fields.Nested(lambda:ExerciseSchema(exclude=("workouts",)))
 
 class WorkoutExercises(db.Model):
 

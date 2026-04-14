@@ -1,4 +1,4 @@
-from flask import Flask, make_response
+from flask import Flask, make_response, request
 from flask_migrate import Migrate
 
 from models import *
@@ -37,6 +37,9 @@ def get_all_workouts():
         "workouts": workouts
     }
 
+    # Serialize the body back to JSON
+    _body = WorkoutSchema().dump(body)
+
     return make_response(body, 200)
 
 # Read a specific /workouts resource -> using id
@@ -53,6 +56,10 @@ def get_workout(id):
             "notes": workout.notes
         }
         status = 200
+
+        # Serialize the body back to JSON
+        _body = WorkoutSchema().dump(body)
+
         return make_response(body, status)
     else:
         return make_response({"error": f"Workout with id {id} not found."}, 404)
@@ -60,7 +67,8 @@ def get_workout(id):
 # CREATE a /workouts resource
 @app.route("/workouts", methods=["POST"])
 def create_workout():
-    data =[]
+
+    data = WorkoutSchema.load(request.get_json())
 
     #New_workout from incoming data
     new_workout = Workout(
@@ -128,6 +136,9 @@ def get_all_exercises():
         "exercises": exercises
     }
 
+    # Serialize the body back to JSON
+    _body = ExerciseSchema().dump(body)
+
     return make_response(body, 200)
 
 # READ a specific /exercises resource
@@ -143,6 +154,10 @@ def get_exercise(id):
             "equipment_needed": exercise.equipment_needed
         }
         status = 200
+
+        # Serialize the body back to JSON
+        _body = ExerciseSchema().dump(body)
+
         return make_response(body, status)
     else:
         return make_response({"error": f"Exercise of id {id} not found."}, 404)
@@ -151,7 +166,7 @@ def get_exercise(id):
 @app.route("/exercises", methods=["POST"])
 def create_exercise():
     #extract data
-    data = []
+    data = ExerciseSchema.load(request.get_json())
 
     #Instance of new_workout from incoming data
     new_exercise = Workout(
