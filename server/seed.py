@@ -22,6 +22,7 @@ with app.app_context():
     wo2 = Workout(date= datetime.datetime(2024, 9, 11) , duration_minutes= 15 , notes="fantastic! will try again")
     wo3 = Workout(date= datetime.datetime(2022, 12, 17) , duration_minutes= 5 , notes="fantastic! will try again")
 
+    '''
     # Add workouts to exercises
     ex1.workouts.append(wo1)
     ex1.workouts.append(wo3)
@@ -31,4 +32,41 @@ with app.app_context():
     wo2.exercises.append(ex3)
     wo2.exercises.append(ex4)
 
-    we1 = WorkoutExercises()
+    These lines:
+        ->Bypass your association table
+        ->Refer to attributes that do not exist
+        ->Conflict with your actual schema design
+    '''
+
+    woex1 = WorkoutExercises(
+        reps=2,
+        sets=25,
+        duration_seconds=300,
+        exercise=ex1,
+        workout=wo1,
+    )
+    
+
+    woex2 = WorkoutExercises(
+        reps=7,
+        sets=20,
+        duration_seconds=480,
+        exercise=ex2,
+        workout=wo1,
+    )
+
+    woex3 = WorkoutExercises(
+        reps=5,
+        sets=18,
+        duration_seconds=160,
+        exercise=ex2,
+        workout=wo2,
+    )
+
+    db.session.add_all([
+        ex1, ex2,
+        wo1, wo2,
+        woex1, woex2, woex3
+    ])
+
+    db.session.commit()
