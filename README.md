@@ -17,21 +17,27 @@ git clone <your-repo-url>
 cd Workout-Application-Backend-Flask-SQLAlchemy
 ```
 
-### 2. Install dependencies using Pipenv
+### 2. Create a virtual environment
+python -m venv venv
 
-```bash
-pipenv install
-pipenv shell
-```
+Activate the virtual environment
+Windows:
+    venv/scripts/activate
 
-### 3. Set environment variables
+mac OS/Linux:
+    source venv/bin/activate
+
+### 3. Install dependencies
+pip install -r requirements.txt
+
+### 4. Set environment variables
 
 ```bash
 export FLASK_APP=app.py
 export FLASK_ENV=development
 ```
 
-### 4. Initialize and migrate the database
+### 5. Initialize and migrate the database
 
 ```bash
 flask db init
@@ -39,7 +45,7 @@ flask db migrate -m "Initial migration"
 flask db upgrade
 ```
 
-### 5. Seed the database
+### 6. Seed the database
 
 ```bash
 python seed.py
